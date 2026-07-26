@@ -1,6 +1,6 @@
 {
     "name": "@c0pt3r/local-date",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A lightweight immutable local date class for TypeScript.",
     "author": "C0PT3R",
     "license": "MIT",
