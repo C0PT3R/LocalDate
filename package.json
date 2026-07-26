@@ -1,0 +1,30 @@
+{
+    "name": "@c0pt3r/local-date",
+    "version": "0.1.0",
+    "description": "A lightweight immutable local date class for TypeScript.",
+    "author": "C0PT3R",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/C0PT3R/LocalDate.git"
+    },
+    "type": "module",
+    "exports": {
+        ".": "./dist/index.js"
+    },
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "date",
+        "localdate",
+        "typescript",
+        "calendar"
+    ]
+}
