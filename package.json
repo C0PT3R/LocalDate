@@ -1,6 +1,6 @@
 {
     "name": "@c0pt3r/local-date",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "A lightweight TypeScript library for calendar dates without time or timezone.",
     "author": "C0PT3R",
     "license": "MIT",
