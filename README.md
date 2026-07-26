@@ -29,7 +29,7 @@ npm install @c0pt3r/local-date
 ## Basic usage
 
 ```ts
-import { LocalDate } from "tiny-date";
+import { LocalDate } from "@c0pt3r/local-date";
 
 const date = new LocalDate(2026, 7, 25);
 
