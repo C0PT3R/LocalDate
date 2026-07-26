@@ -1,8 +1,8 @@
-# TinyDate
+# LocalDate
 
 A lightweight TypeScript class representing a calendar date without a time or timezone.
 
-Unlike JavaScript's built-in `Date`, `TinyDate` represents only a **year**, **month**, and **day**. Internally it stores dates at **midnight UTC**, making it ideal for business logic, scheduling, billing, recurring events, and any situation where a date should not shift because of time zones or daylight saving time.
+Unlike JavaScript's built-in `Date`, `LocalDate` represents only a **year**, **month**, and **day**. Internally it stores dates at **midnight UTC**, making it ideal for business logic, scheduling, billing, recurring events, and any situation where a date should not shift because of time zones or daylight saving time.
 
 ## Features
 
@@ -29,9 +29,9 @@ npm install @c0pt3r/local-date
 ## Basic usage
 
 ```ts
-import { TinyDate } from "tiny-date";
+import { LocalDate } from "tiny-date";
 
-const date = new TinyDate(2026, 7, 25);
+const date = new LocalDate(2026, 7, 25);
 
 console.log(date.toISO());
 // 2026-07-25
@@ -44,7 +44,7 @@ console.log(date.toISO());
 ### Today's date
 
 ```ts
-const today = new TinyDate();
+const today = new LocalDate();
 ```
 
 This constructor uses the current **UTC** calendar date.
@@ -54,7 +54,7 @@ This constructor uses the current **UTC** calendar date.
 ### From year, month and day
 
 ```ts
-const christmas = new TinyDate(2026, 12, 25);
+const christmas = new LocalDate(2026, 12, 25);
 ```
 
 Months use the familiar range:
@@ -68,7 +68,7 @@ Months use the familiar range:
 The day defaults to **1** if omitted.
 
 ```ts
-const july = new TinyDate(2026, 7);
+const july = new LocalDate(2026, 7);
 
 console.log(july.toISO());
 // 2026-07-01
@@ -77,7 +77,7 @@ console.log(july.toISO());
 Invalid dates throw an exception.
 
 ```ts
-new TinyDate(2025, 2, 29);
+new LocalDate(2025, 2, 29);
 // Error: Invalid date
 ```
 
@@ -86,7 +86,7 @@ new TinyDate(2025, 2, 29);
 ### From an epoch day
 
 ```ts
-const date = new TinyDate(0);
+const date = new LocalDate(0);
 ```
 
 `epochDay` counts days since **Sunday, January 4, 1970**.
@@ -137,7 +137,7 @@ If the current day does not exist in the target month, it is automatically clamp
 Example:
 
 ```ts
-new TinyDate(2026, 1, 31)
+new LocalDate(2026, 1, 31)
     .setMonth(2)
     .toISO();
 
@@ -229,7 +229,7 @@ Returns:
 Example:
 
 ```ts
-const saturday = new TinyDate(2026, 7, 25);
+const saturday = new LocalDate(2026, 7, 25);
 
 console.log(saturday.getWeekDay());
 // 6
@@ -240,7 +240,7 @@ console.log(saturday.getWeekDay());
 ### getLastDayOfMonth()
 
 ```ts
-new TinyDate(2024, 2, 1).getLastDayOfMonth();
+new LocalDate(2024, 2, 1).getLastDayOfMonth();
 // 29
 ```
 
@@ -263,7 +263,7 @@ date.getEpochDay();
 Creates an independent copy.
 
 ```ts
-const original = new TinyDate(2026, 7, 25);
+const original = new LocalDate(2026, 7, 25);
 
 const copy = original.clone();
 
@@ -283,8 +283,8 @@ console.log(copy.toISO());
 Checks whether a date lies between two others.
 
 ```ts
-const start = new TinyDate(2026, 1, 1);
-const end = new TinyDate(2026, 12, 31);
+const start = new LocalDate(2026, 1, 1);
+const end = new LocalDate(2026, 12, 31);
 
 date.isBetween(start, end);
 ```
@@ -315,11 +315,11 @@ date.toISO();
 
 ### toJSON()
 
-`TinyDate` serializes naturally with `JSON.stringify()`.
+`LocalDate` serializes naturally with `JSON.stringify()`.
 
 ```ts
 const invoice = {
-    dueDate: new TinyDate(2026, 7, 25)
+    dueDate: new LocalDate(2026, 7, 25)
 };
 
 console.log(JSON.stringify(invoice));
@@ -337,11 +337,11 @@ Output:
 
 ### valueOf()
 
-`TinyDate` can be compared directly.
+`LocalDate` can be compared directly.
 
 ```ts
-const a = new TinyDate(2026, 1, 1);
-const b = new TinyDate(2026, 2, 1);
+const a = new LocalDate(2026, 1, 1);
+const b = new LocalDate(2026, 2, 1);
 
 console.log(a < b);
 // true
@@ -359,7 +359,7 @@ The numeric value is the epoch day.
 Because every mutating method returns `this`, operations can be chained.
 
 ```ts
-const dueDate = new TinyDate(2026, 1, 31)
+const dueDate = new LocalDate(2026, 1, 31)
     .setMonth(2)
     .addDays(14)
     .setYear(2027);
@@ -371,14 +371,14 @@ console.log(dueDate.toISO());
 
 # Mutability
 
-`TinyDate` is **mutable**.
+`LocalDate` is **mutable**.
 
 Every setter modifies the existing object.
 
 If you need a new instance, call `clone()` first.
 
 ```ts
-const original = new TinyDate(2026, 7, 25);
+const original = new LocalDate(2026, 7, 25);
 
 const tomorrow = original
     .clone()

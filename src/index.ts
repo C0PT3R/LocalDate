@@ -1,6 +1,6 @@
 const MS_PER_DAY = 864e5
 
-export class TinyDate {
+export class LocalDate {
 
 	/** The internal Date object */
 	#date: Date
@@ -12,18 +12,18 @@ export class TinyDate {
 	static readonly #UNIX_SUNDAY_EPOCH = Date.UTC(1970, 0, 4)
 
 	/**
-	 * Creates a TinyDate representing today's date
+	 * Creates a LocalDate representing today's date
 	 */
 	public constructor()
 
 	/**
-	 * Creates a TinyDate representing the specified date
+	 * Creates a LocalDate representing the specified date
 	 * @param epochDay The number of elapsed days since the first UNIX Sunday
 	 */
 	public constructor(epochDay: number)
 
 	/**
-	 * Creates a TinyDate representing the specified date
+	 * Creates a LocalDate representing the specified date
 	 * @param year The year.
 	 * @param month The month (1 - 12).
 	 * @param day The day (optionnal). Default is 1
@@ -47,7 +47,7 @@ export class TinyDate {
 			month = month ?? 1
 			day = day ?? 1
 			
-			if (!TinyDate.isValidDate(yearOrEpochDay as number, month, day))
+			if (!LocalDate.isValidDate(yearOrEpochDay as number, month, day))
 				throw new Error("Invalid date")
 			
 			this.#date = new Date(Date.UTC(yearOrEpochDay as number, month - 1, day))
@@ -76,7 +76,7 @@ export class TinyDate {
 		if (!Number.isInteger(epochDay))
 		    throw new Error("Invalid epoch day")
 
-		this.#date.setTime((epochDay * MS_PER_DAY) + TinyDate.#UNIX_SUNDAY_EPOCH)
+		this.#date.setTime((epochDay * MS_PER_DAY) + LocalDate.#UNIX_SUNDAY_EPOCH)
 		this.#date.setUTCHours(0, 0, 0, 0)
 		return this
 	}
@@ -134,7 +134,7 @@ export class TinyDate {
 	 * @returns Self.
 	 */
 	public setDate(year: number, month: number, day: number): this {
-		if (!TinyDate.isValidDate(year, month, day))
+		if (!LocalDate.isValidDate(year, month, day))
     		throw new Error("Invalid date")
 
 		this.#date.setUTCFullYear(year, month - 1, day)
@@ -150,11 +150,11 @@ export class TinyDate {
 	}
 
 	/**
-	 * Creates a copy of the TinyDate. Useful if you want to modify a date without affecting the original one.
+	 * Creates a copy of the LocalDate. Useful if you want to modify a date without affecting the original one.
 	 * @returns A copy of self
 	 */
-	public clone(): TinyDate {
-		return new TinyDate(this.getEpochDay())
+	public clone(): LocalDate {
+		return new LocalDate(this.getEpochDay())
 	}
 
 	/**
@@ -174,7 +174,7 @@ export class TinyDate {
 	 * @param inclusive 
 	 * @returns 
 	 */
-	public isBetween(a: TinyDate, b: TinyDate, inclusive: boolean = true): boolean {
+	public isBetween(a: LocalDate, b: LocalDate, inclusive: boolean = true): boolean {
 		if (inclusive)
 			return this >= a && this <= b
 		
@@ -185,7 +185,7 @@ export class TinyDate {
 	 * The number of elapsed days since the first UNIX Sunday
 	 */
 	public getEpochDay(): number {
-		return Math.trunc((this.#date.getTime() - TinyDate.#UNIX_SUNDAY_EPOCH) / MS_PER_DAY)
+		return Math.trunc((this.#date.getTime() - LocalDate.#UNIX_SUNDAY_EPOCH) / MS_PER_DAY)
 	}
 
 	/**

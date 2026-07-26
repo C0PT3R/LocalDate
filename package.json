@@ -1,7 +1,7 @@
 {
-    "name": "tiny-date",
+    "name": "@c0pt3r/local-date",
     "version": "0.1.0",
-    "description": "A tiny date-only library. No time. No timezone.",
+    "description": "A lightweight TypeScript library for calendar dates without time or timezone.",
     "author": "C0PT3R",
     "license": "MIT",
     "repository": {
