@@ -1,6 +1,6 @@
 const MS_PER_DAY = 864e5
 
-export default class LocalDate {
+export class LocalDate {
 
 	/** The internal Date object */
 	#date: Date
