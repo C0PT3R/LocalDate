@@ -1,12 +1,12 @@
 {
-    "name": "@c0pt3r/local-date",
-    "version": "0.1.2",
-    "description": "A lightweight immutable local date class for TypeScript.",
+    "name": "tiny-date",
+    "version": "0.1.0",
+    "description": "A tiny date-only library. No time. No timezone.",
     "author": "C0PT3R",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/C0PT3R/LocalDate.git"
+        "url": "git+https://github.com/C0PT3R/LocalDate.git"
     },
     "type": "module",
     "exports": {
