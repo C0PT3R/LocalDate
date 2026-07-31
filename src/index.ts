@@ -66,6 +66,24 @@ export class LocalDate {
 			d.getUTCDate() === day
 		)
 	}
+	
+	/**
+	 * Creates a date from an ISO string
+	 * @param value 
+	 * @returns 
+	 */
+	public static fromISO(value: string): LocalDate {
+		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+		if (!match)
+			throw new Error("Invalid ISO date")
+
+		return new LocalDate(
+			Number(match[1]),
+			Number(match[2]),
+			Number(match[3])
+		)
+	}
 
 	/**
 	 * Sets the epoch day
@@ -227,6 +245,29 @@ export class LocalDate {
 	
 	public toJSON(): string {
     	return this.toISO()
+	}
+
+	/**
+	 * 
+	 * @param locales 
+	 * @param options 
+	 * @returns 
+	 */
+	public toLocaleString(locales?: Intl.LocalesArgument, options: Intl.DateTimeFormatOptions = {}): string {
+		const formatter = new Intl.DateTimeFormat(locales, {
+			timeZone: "UTC",
+			...options
+		})
+
+		return formatter.format(this.#date)
+	}
+
+	/**
+	 * 
+	 * @returns 
+	 */
+	public toYearMonthISO(): string {
+		return `${this.getYear()}-${String(this.getMonth()).padStart(2, "0")}`
 	}
 
 }
