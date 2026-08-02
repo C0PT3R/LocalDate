@@ -1,22 +1,8 @@
 # LocalDate
 
-A lightweight TypeScript class representing a calendar date without a time or timezone.
+An immutable Gregorian calendar date for TypeScript and JavaScript.
 
-Unlike JavaScript's built-in `Date`, `LocalDate` represents only a **year**, **month**, and **day**. Internally it stores dates at **midnight UTC**, making it ideal for business logic, scheduling, billing, recurring events, and any situation where a date should not shift because of time zones or daylight saving time.
-
-## Features
-
-* Simple API
-* No timezone headaches
-* No time-of-day component
-* Supports dates before and after the Unix epoch
-* ISO 8601 formatting
-* JSON serialization
-* Method chaining
-* TypeScript support
-* Zero runtime dependencies
-
----
+`LocalDate` represents only a year, month, and day. It has no time, timezone, UTC offset, or daylight-saving behavior. Its core arithmetic does not use JavaScript `Date`, so calendar operations are deterministic in every runtime.
 
 ## Installation
 
@@ -24,388 +10,128 @@ Unlike JavaScript's built-in `Date`, `LocalDate` represents only a **year**, **m
 npm install @c0pt3r/local-date
 ```
 
----
-
-## Basic usage
+## Create dates
 
 ```ts
-import { LocalDate } from "@c0pt3r/local-date";
+import { LocalDate } from "@c0pt3r/local-date"
 
-const date = new LocalDate(2026, 7, 25);
-
-console.log(date.toISO());
-// 2026-07-25
+const date = new LocalDate(2026, 8, 2)
+const parsed = LocalDate.fromISO("2026-08-02")
+const today = LocalDate.today()
+const todayUTC = LocalDate.todayUTC()
 ```
 
----
+The supported range is `0000-01-01` through `9999-12-31` in the proleptic Gregorian calendar.
 
-## Creating dates
-
-### Today's date
+## Read fields
 
 ```ts
-const today = new LocalDate();
+ date.year         // 2026
+ date.month        // 8
+ date.day          // 2
+ date.dayOfWeek    // 7; Monday = 1, Sunday = 7
+ date.dayOfYear    // 214
+ date.daysInMonth  // 31
+ date.daysInYear   // 365
+ date.isLeapYear   // false
 ```
 
-This constructor uses the current **UTC** calendar date.
+## Immutable updates
 
----
-
-### From year, month and day
+Every operation returns a new `LocalDate`. Existing values never change.
 
 ```ts
-const christmas = new LocalDate(2026, 12, 25);
+const invoiceDate = new LocalDate(2024, 1, 31)
+const nextMonth = invoiceDate.plusMonths(1)
+
+invoiceDate.toISO() // "2024-01-31"
+nextMonth.toISO()   // "2024-02-29"
 ```
 
-Months use the familiar range:
-
-```text
-1 = January
-...
-12 = December
-```
-
-The day defaults to **1** if omitted.
+Calendar arithmetic constrains the day by default when a target month is shorter:
 
 ```ts
-const july = new LocalDate(2026, 7);
-
-console.log(july.toISO());
-// 2026-07-01
+new LocalDate(2024, 2, 29).plusYears(1).toISO() // "2025-02-28"
 ```
 
-Invalid dates throw an exception.
+Use strict overflow handling when silent clamping is undesirable:
 
 ```ts
-new LocalDate(2025, 2, 29);
-// Error: Invalid date
+new LocalDate(2024, 1, 31).plusMonths(1, { overflow: "reject" })
+// throws LocalDateError
 ```
 
----
-
-### From an epoch day
+Available operations:
 
 ```ts
-const date = new LocalDate(0);
+date.with({ year: 2027, month: 3 })
+date.plus({ years: 1, months: 2, weeks: 3, days: 4 })
+date.minus({ months: 6 })
+date.plusDays(10)
+date.plusWeeks(2)
+date.plusMonths(1)
+date.plusYears(1)
 ```
 
-`epochDay` counts days since **Sunday, January 4, 1970**.
+## Epoch days
 
-Using Sunday instead of January 1 makes weekday calculations extremely simple.
-
-```text
-epochDay 0 = Sunday
-epochDay 1 = Monday
-...
-epochDay 6 = Saturday
-```
-
----
-
-# API
-
-## Setters
-
-All setters modify the current object and return `this`.
-
-### setDate()
+Epoch days use the conventional Unix date epoch:
 
 ```ts
-date.setDate(2026, 8, 15);
+new LocalDate(1970, 1, 1).epochDay // 0
+LocalDate.fromEpochDay(-1).toISO() // "1969-12-31"
 ```
 
----
-
-### setYear()
+## Comparison and differences
 
 ```ts
-date.setYear(2027);
+const start = new LocalDate(2026, 1, 1)
+const end = new LocalDate(2026, 2, 1)
+
+LocalDate.compare(start, end) // -1
+start.equals(end)             // false
+start.isBefore(end)           // true
+end.isAfter(start)            // true
+start.daysUntil(end)          // 31
+
+new LocalDate(2026, 1, 15).isBetween(start, end) // true
 ```
 
-If the current day does not exist in the target year (for example February 29), it is automatically clamped to the last valid day.
+`isBetween()` requires ordered bounds and includes them by default.
 
----
-
-### setMonth()
+## Conversion and serialization
 
 ```ts
-date.setMonth(2);
+date.toISO()          // "2026-08-02"
+date.toString()       // "2026-08-02"
+date.toJSON()         // "2026-08-02"
+date.toDateUTC()      // JavaScript Date at midnight UTC
+date.toLocaleString("en-CA", { dateStyle: "long" })
 ```
 
-If the current day does not exist in the target month, it is automatically clamped.
+`JSON.stringify()` automatically emits the ISO date string.
 
-Example:
+## Error behavior
+
+Invalid calendar values and out-of-range arithmetic throw `LocalDateError`, which extends `RangeError`. Incorrect argument types throw `TypeError`.
 
 ```ts
-new LocalDate(2026, 1, 31)
-    .setMonth(2)
-    .toISO();
-
-// 2026-02-28
+import { LocalDate, LocalDateError } from "@c0pt3r/local-date"
 ```
 
----
-
-### setDay()
-
-```ts
-date.setDay(15);
-```
-
-Throws if the day is invalid for the current month.
-
----
-
-### setEpochDay()
-
-```ts
-date.setEpochDay(5000);
-```
-
-Replaces the date using its epoch-day value.
-
----
-
-### addDays()
-
-```ts
-date.addDays(30);
-```
-
-Negative values move backwards.
-
-```ts
-date.addDays(-7);
-```
-
-Month and year transitions are handled automatically.
-
----
-
-## Getters
-
-### getYear()
-
-```ts
-date.getYear();
-```
-
----
-
-### getMonth()
-
-Returns a value between **1** and **12**.
-
-```ts
-date.getMonth();
-```
-
----
-
-### getDay()
-
-Returns the day of the month.
-
-```ts
-date.getDay();
-```
-
----
-
-### getWeekDay()
-
-Returns:
-
-| Value | Day       |
-| ----: | --------- |
-|     0 | Sunday    |
-|     1 | Monday    |
-|     2 | Tuesday   |
-|     3 | Wednesday |
-|     4 | Thursday  |
-|     5 | Friday    |
-|     6 | Saturday  |
-
-Example:
-
-```ts
-const saturday = new LocalDate(2026, 7, 25);
-
-console.log(saturday.getWeekDay());
-// 6
-```
-
----
-
-### getLastDayOfMonth()
-
-```ts
-new LocalDate(2024, 2, 1).getLastDayOfMonth();
-// 29
-```
-
----
-
-### getEpochDay()
-
-Returns the number of elapsed days since Sunday, January 4, 1970.
-
-```ts
-date.getEpochDay();
-```
-
----
-
-## Utility methods
-
-### clone()
-
-Creates an independent copy.
-
-```ts
-const original = new LocalDate(2026, 7, 25);
-
-const copy = original.clone();
-
-copy.addDays(1);
-
-console.log(original.toISO());
-// 2026-07-25
-
-console.log(copy.toISO());
-// 2026-07-26
-```
-
----
-
-### isBetween()
-
-Checks whether a date lies between two others.
-
-```ts
-const start = new LocalDate(2026, 1, 1);
-const end = new LocalDate(2026, 12, 31);
-
-date.isBetween(start, end);
-```
-
-By default, the boundaries are included.
-
-To exclude them:
-
-```ts
-date.isBetween(start, end, false);
-```
-
----
-
-## Conversion
-
-### toISO()
-
-Returns an ISO-8601 calendar date.
-
-```ts
-date.toISO();
-
-// 2026-07-25
-```
-
----
-
-### toJSON()
-
-`LocalDate` serializes naturally with `JSON.stringify()`.
-
-```ts
-const invoice = {
-    dueDate: new LocalDate(2026, 7, 25)
-};
-
-console.log(JSON.stringify(invoice));
-```
-
-Output:
-
-```json
-{
-    "dueDate": "2026-07-25"
-}
-```
-
----
-
-### valueOf()
-
-`LocalDate` can be compared directly.
-
-```ts
-const a = new LocalDate(2026, 1, 1);
-const b = new LocalDate(2026, 2, 1);
-
-console.log(a < b);
-// true
-
-console.log(a >= b);
-// false
-```
-
-The numeric value is the epoch day.
-
----
-
-# Method chaining
-
-Because every mutating method returns `this`, operations can be chained.
-
-```ts
-const dueDate = new LocalDate(2026, 1, 31)
-    .setMonth(2)
-    .addDays(14)
-    .setYear(2027);
-
-console.log(dueDate.toISO());
-```
-
----
-
-# Mutability
-
-`LocalDate` is **mutable**.
-
-Every setter modifies the existing object.
-
-If you need a new instance, call `clone()` first.
-
-```ts
-const original = new LocalDate(2026, 7, 25);
-
-const tomorrow = original
-    .clone()
-    .addDays(1);
-```
-
----
-
-# Design goals
-
-This library intentionally focuses on one thing:
-
-> Representing a calendar date.
-
-It deliberately does **not** implement:
-
-* Time-of-day
-* Time zones
-* Daylight saving time
-* Parsing arbitrary date formats
-* Internationalized formatting
-* Calendars other than the Gregorian calendar
-
-If you need those features, JavaScript's `Date`, the upcoming `Temporal` API, or a dedicated date-time library may be a better fit.
-
----
-
-# License
+## Design guarantees
+
+- Immutable values
+- No runtime dependencies
+- No timezone in the core model
+- Standard Unix epoch-day semantics
+- Strict `YYYY-MM-DD` parsing
+- ISO weekday numbering
+- Safe-integer validation
+- Deterministic Gregorian arithmetic
+- ESM package with TypeScript declarations
+- Node.js 18 or newer
+
+## License
 
 MIT
